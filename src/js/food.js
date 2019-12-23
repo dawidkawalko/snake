@@ -18,7 +18,7 @@ class Food {
 
         this.x = x;
         this.y = y;
-        this.ttl = 40;
+        this.ttl = 200;
     }
 
     update() {

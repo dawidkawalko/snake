@@ -7,8 +7,9 @@ const Direction = {
 };
 
 class Snake {
-    constructor(headX, headY, canGoThroughWalls) {
+    constructor(headX, headY, speed, canGoThroughWalls) {
         this.canGoThroughWalls = canGoThroughWalls;
+        this.speed = speed;
         this.parts = [];
 
         this.bufferDirection = Direction.NONE;
@@ -17,13 +18,13 @@ class Snake {
         this.head = this._addPart(headX, headY);
     }
 
-    update(food, bombs) {
+    update(food, bombs, bonus) {
         if (this.head == null) {
             return false;
         }
 
         this.direction = this.bufferDirection;
-        return this._move(food, bombs);
+        return this._move(food, bombs, bonus);
     }
 
     setDirection(direction) {
@@ -45,7 +46,16 @@ class Snake {
         return false;
     }
 
-    _move(food, bombs) {
+    _eatBonus(bonus) {
+        if (this.head.x == bonus.x && this.head.y == bonus.y) {
+            bonus.respawn();
+            return true;
+        }
+
+        return false;
+    }
+
+    _move(food, bombs, bonus) {
         this.head = this._addPart(this.head.x, this.head.y);
 
         if (this.canGoThroughWalls) {
@@ -58,6 +68,12 @@ class Snake {
 
         if (!this._eatFood(food)) {
             this.parts.pop();
+        }
+
+        if (this._eatBonus(bonus)) {
+            for (const bomb of bombs) {
+                bomb.hide();
+            }
         }
 
         const hitSelf = this._hitSelf();

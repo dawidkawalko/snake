@@ -6,6 +6,10 @@ class Bomb {
         this.respawn();
     }
 
+    hide() {
+        this.hiddenTimer = 500;
+    }
+
     respawn() {
         let x = Math.floor(Math.random() * GRID_WIDTH);
         let y = Math.floor(Math.random() * GRID_HEIGHT);
@@ -18,13 +22,29 @@ class Bomb {
 
         this.x = x;
         this.y = y;
-        this.ttl = 100;
+
+        this.prevX = x;
+        this.prevY = y;
+
+        this.ttl = 400;
+        this.hiddenTimer = 0;
     }
 
     update() {
-        this.ttl -= 1;
-        if (this.ttl == 0) {
-            this.respawn();
+        if (this.hiddenTimer == 0) {
+            this.ttl -= 1;
+            if (this.ttl == 0) {
+                this.respawn();
+            }
+        }
+
+        if (this.hiddenTimer > 0) {
+            this.hiddenTimer -= 1;
+            this.x = -1;
+            this.y = -1;
+        } else {
+            this.x = this.prevX;
+            this.y = this.prevY;
         }
     }
 

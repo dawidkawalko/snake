@@ -7,18 +7,22 @@ const CELL_SIZE = 20;
 let snake = null;
 let food = null;
 let bombs = [];
+let bonus = null;
+let updateCounter = 0;
 
 function restart() {
-    snake = new Snake(Math.floor(GRID_WIDTH / 2), Math.floor(GRID_HEIGHT / 2), true);
+    snake = new Snake(Math.floor(GRID_WIDTH / 2), Math.floor(GRID_HEIGHT / 2), 5, true);
+    updateCounter = snake.speed;
+
     food = new Food();
+    bonus = new Bonus();
+    
     bombs = [];
     bombs.push(new Bomb());
 }
 
 function setup() {
     createCanvas(GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE);
-    frameRate(15);
-
     restart();
 }
 
@@ -27,6 +31,8 @@ function draw() {
 
     if (snake.direction != Direction.NONE) {
         food.update();
+        bonus.update();
+
         for (const bomb of bombs) {
             bomb.update();
         }
@@ -36,9 +42,14 @@ function draw() {
         }
     }
 
-    const isAlive = snake.update(food, bombs);
-    if (!isAlive) {
-        restart();
+    updateCounter -= 1;
+    if (updateCounter == 0) {
+        const isAlive = snake.update(food, bombs, bonus);
+        if (!isAlive) {
+            restart();
+        }
+
+        updateCounter = snake.speed;
     }
 
     stroke(0);
@@ -47,6 +58,7 @@ function draw() {
     rect(0, 0, width, height);
 
     food.draw();
+    bonus.draw();
 
     for (const bomb of bombs) {
         bomb.draw();
@@ -66,7 +78,7 @@ function draw() {
     noStroke();
     textSize(25);
     textAlign(RIGHT);
-    text('Food timer: ' + ('000' + food.ttl).slice(-2), width - 5, height - 5);
+    text('Food timer: ' + ('000' + food.ttl).slice(-3), width - 5, height - 5);
 }
 
 function keyPressed() {
